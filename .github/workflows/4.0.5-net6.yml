@@ -31,13 +31,13 @@ jobs:
         mkdir wix-download
         
         dotnet package download wix@4.0.5 --output ./wix-download
-        dir wix-download
+        dir wix-download/wix
 
     - name: Extract and Prepare Source Binaries
       shell: pwsh
       run: |
         # NuGet packages are zip files; expand it to read the interior assets
-        Expand-Archive -Path ./wix-download/wix.4.0.5.nupkg -DestinationPath ./wix-extracted
+        Expand-Archive -Path ./wix-download/wix/wix.4.0.5.nupkg -DestinationPath ./wix-extracted
         dir wix-extracted
         
         # Isolate the platform-agnostic .NET assembly files
