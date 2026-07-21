@@ -31,7 +31,7 @@ jobs:
         mkdir wix-download
         
         dotnet package download wix@4.0.5 --output ./wix-download
-
+        dir wix-download
 
     - name: Extract and Prepare Source Binaries
       shell: pwsh
