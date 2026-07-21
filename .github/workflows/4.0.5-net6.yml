@@ -19,11 +19,18 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '6.0.x' # Uses a modern SDK to handle the compilation
-
+        
+    # Step 2.5: Print diagnostic version information
+    - name: Check .NET Version Info
+      run: |
+        dotnet --version
+        dotnet --info
+        
     - name: Download WiX NuGet Package
       run: |
         mkdir wix-download
-        dotnet download package wix --version 4.0.5 --output ./wix-download
+        
+        dotnet download package wix --version 4.0.5 --output wix-download
 
     - name: Extract and Prepare Source Binaries
       shell: pwsh
