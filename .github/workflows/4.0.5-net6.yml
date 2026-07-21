@@ -30,7 +30,7 @@ jobs:
       run: |
         mkdir wix-download
         
-        dotnet --fx-version 6.0.428 package download wix@4.0.5 --output ./wix-download
+        dotnet package download wix@4.0.5 --output ./wix-download
 
 
     - name: Extract and Prepare Source Binaries
