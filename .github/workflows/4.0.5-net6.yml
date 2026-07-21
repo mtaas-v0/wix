@@ -1,0 +1,65 @@
+name: Build Standalone WiX CLI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch: # Allows you to trigger this manually from the GitHub UI
+
+jobs:
+  build-standalone-wix:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '6.0.x' # Uses a modern SDK to handle the compilation
+
+    - name: Download WiX NuGet Package
+      run: |
+        mkdir wix-download
+        dotnet download package wix --version 4.0.5 --output ./wix-download
+
+    - name: Extract and Prepare Source Binaries
+      shell: pwsh
+      run: |
+        # NuGet packages are zip files; expand it to read the interior assets
+        Expand-Archive -Path ./wix-download/wix.4.0.5.nupkg -DestinationPath ./wix-extracted
+        
+        # Isolate the platform-agnostic .NET assembly files
+        mkdir C:\wix-source
+        Copy-Item -Path ./wix-extracted/tools/net6.0/any/* -Destination C:\wix-source -Recurse
+
+    - name: Compile Standalone Native Executable
+      shell: pwsh
+      run: |
+        cd C:\wix-source
+        
+        # Publish the DLL as a completely self-contained, single-file native Windows executable
+        dotnet publish wix.dll `
+          -c Release `
+          -r win-x64 `
+          --self-contained true `
+          -p:PublishSingleFile=true `
+          -p:IncludeNativeLibrariesForSelfExtract=true `
+          -p:DebugType=None `
+          -p:DebugSymbols=false `
+          -o D:\StandaloneWix
+
+    - name: Verify Output Execution
+      shell: pwsh
+      run: |
+        # Prove the executable can run natively in a command line without standard installation
+        D:\StandaloneWix\wix.exe --version
+
+    - name: Upload Standalone wix.exe Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: standalone-wix-win-x64
+        path: D:\StandaloneWix/
+        if-no-files-found: error
