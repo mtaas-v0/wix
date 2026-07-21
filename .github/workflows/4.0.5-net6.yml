@@ -38,6 +38,7 @@ jobs:
       run: |
         # NuGet packages are zip files; expand it to read the interior assets
         Expand-Archive -Path ./wix-download/wix.4.0.5.nupkg -DestinationPath ./wix-extracted
+        dir wix-extracted
         
         # Isolate the platform-agnostic .NET assembly files
         mkdir C:\wix-source
